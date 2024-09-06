@@ -1,0 +1,56 @@
+﻿@model suitMvc.Models.Usuarios
+@{
+}
+@* Tabla para crear usuarios *@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">Crear Usuario</h1>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Crear" method="post">
+                        <div class="form-group">
+                            <label asp-for="nombre" class="control-label"></label>
+                            <input asp-for="nombre" class="form-control" />
+                            <span asp-validation-for="nombre" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="apellido" class="control-label"></label>
+                            <input asp-for="apellido" class="form-control" />
+                            <span asp-validation-for="apellido" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="usuario" class="control-label"></label>
+                            <input asp-for="usuario" class="form-control" />
+                            <span asp-validation-for="usuario" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="contrasena" class="control-label"></label>
+                            <input asp-for="contrasena" class="form-control" type="password" />
+                            <span asp-validation-for="contrasena" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="admin" class="control-label"></label>
+                            <input asp-for="admin" class="form-control" />
+                            <span asp-validation-for="admin" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mt-4">
+                            <input type="submit" value="Crear" class="btn btn-primary" />
+                            <a asp-action="Index" class="btn btn-secondary ml-2">Volver</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

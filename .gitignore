@@ -1,0 +1,33 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.rsuser
+*.rsuser.*
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+*.generated.cs
+*.generated.ts
+*.generated.d.ts
+
+# Package directories
+node_modules/
+packages/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Environment-specific settings
+appsettings.Development.json
+appsettings.Local.json
