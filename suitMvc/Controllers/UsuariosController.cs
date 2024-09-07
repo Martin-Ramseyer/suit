@@ -38,5 +38,31 @@ namespace suitMvc.Controllers
             return View();
         }
 
+        //GET : Usuarios/Actualizar
+        [HttpGet]
+        public IActionResult Actualizar(int id)
+        {
+            var usuario = _context.Usuarios.Find(id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+            return View(usuario);
+        }
+
+        //POST : Usuarios/Actualizar
+        [HttpPost]
+        public async Task<IActionResult> Actualizar(Usuarios usuarios)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Update(usuarios);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(usuarios);
+        }
     }
 }
+
+

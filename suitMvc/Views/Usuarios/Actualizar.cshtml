@@ -1,15 +1,17 @@
 ﻿@model suitMvc.Models.Usuarios
 @{
 }
+@* Formulario para actualizar que trae la info del id del usuario seleccionado *@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h1 class="h3 mb-0">Crear Usuario</h1>
+                    <h1 class="h3 mb-0">Actualizar Usuario</h1>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Crear" method="post">
+                    <form asp-action="Actualizar" method="post">
+                        <input asp-for="usuario_id" type="hidden" />
                         <div class="form-group">
                             <label asp-for="nombre" class="control-label">Nombre</label>
                             <input asp-for="nombre" class="form-control" />
@@ -31,7 +33,7 @@
                             <span asp-validation-for="contrasena" class="text-danger"></span>
                         </div>
                         <div class="form-group mt-4">
-                            <input type="submit" value="Crear" class="btn btn-primary" />
+                            <input type="submit" value="Actualizar" class="btn btn-primary" />
                             <a asp-action="Index" class="btn btn-secondary ml-2">Volver</a>
                         </div>
                     </form>
@@ -40,11 +42,8 @@
         </div>
     </div>
 </div>
-
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-
