@@ -23,3 +23,41 @@ body {
 .primerLetraMayuscula {
     text-transform: capitalize;
 }
+
+.instagram-story-container {
+    max-width: 300px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.instagram-story-image {
+    width: 100%;
+    height: 100%;
+}
+
+.instagram-story-content {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+    .instagram-story-content::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .instagram-story-content:hover::before {
+        opacity: 1;
+    }
+
+    .instagram-story-content:hover .instagram-story-image {
+        transform: scale(1.1);
+    }
