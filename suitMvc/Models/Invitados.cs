@@ -21,6 +21,6 @@ namespace suitMvc.Models
         public int consumiciones { get; set; }
 
         [ForeignKey("usuario_id")]
-        public virtual Usuarios Usuarios { get; set; }
+        public virtual required Usuarios Usuarios { get; set; }
     }
 }

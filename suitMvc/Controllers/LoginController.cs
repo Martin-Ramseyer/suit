@@ -22,20 +22,23 @@ namespace suitMvc.Controllers
         }
         public async Task<IActionResult> Login(LoginVM modelo)
         {
+
+
             Usuarios? usuario_encontrado = await _context.Usuarios
                 .Where(u => u.usuario == modelo.usuario && u.contrasena == modelo.contrasena)
                 .FirstOrDefaultAsync();
 
-            if (usuario_encontrado == null)
+            if (usuario_encontrado == null || usuario_encontrado.usuario == null)
             {
                 ViewData["Mensaje"] = "Usuario o contraseña incorrecta.";
                 return View();
             }
 
             List<Claim> claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, usuario_encontrado.usuario)
-            };
+        {
+            new Claim(ClaimTypes.Name, usuario_encontrado.usuario),
+            new Claim(ClaimTypes.NameIdentifier, usuario_encontrado.usuario_id.ToString()) // Aquí se almacena la ID del usuario
+        };
 
             ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             AuthenticationProperties properties = new AuthenticationProperties()
