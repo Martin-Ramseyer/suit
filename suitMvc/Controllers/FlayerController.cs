@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using suitMvc.Data;
 using suitMvc.Models;
 
 namespace suitMvc.Controllers
 {
+    [Authorize]
     public class FlayerController : Controller
     {
         private readonly SuitDbContext _context;

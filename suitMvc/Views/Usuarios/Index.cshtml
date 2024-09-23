@@ -4,53 +4,59 @@
 @{
     ViewData["Title"] = "Usuarios";
 }
-@if(User.Identity.IsAuthenticated)
+@if (User.Identity.IsAuthenticated)
 {
-    <h1>Bienvenido 
-        @User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()
-    </h1>
-	
-    
+    var isAdmin = User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1";
+    if (isAdmin)
+    {
+        <h1>
+            Bienvenido
+            @User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()
+        </h1>
+        <h2>Usuarios</h2>
+        <a asp-action="Crear" class="btn btn-success">Crear Nuevo Usuario</a>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="primerLetraMayuscula">
+                        @Html.DisplayNameFor(model => model.nombre)
+                    </th>
+                    <th class="primerLetraMayuscula">
+                        @Html.DisplayNameFor(model => model.apellido)
+                    </th>
+                    <th class="primerLetraMayuscula">
+                        @Html.DisplayNameFor(model => model.usuario)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="primerLetraMayuscula">
+                            @Html.DisplayFor(modelItem => item.nombre)
+                        </td>
+                        <td class="primerLetraMayuscula">
+                            @Html.DisplayFor(modelItem => item.apellido)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.usuario)
+                        </td>
+                        <td>
+                            <a asp-action="Actualizar" asp-route-id="@item.usuario_id" class="btn btn-primary">Actualizar</a>
+                            <form asp-action="Eliminar" asp-route-id="@item.usuario_id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?');">
+                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <h1>No tienes permisos para ver esta página.</h1>
+    }
 }
-<h2>Usuarios</h2>
-<a asp-action="Crear" class="btn btn-success">Crear Nuevo Usuario</a>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th class="primerLetraMayuscula">
-                @Html.DisplayNameFor(model => model.nombre)
-            </th>
-            <th class="primerLetraMayuscula">
-                @Html.DisplayNameFor(model => model.apellido)
-            </th>
-            <th class="primerLetraMayuscula">
-                @Html.DisplayNameFor(model => model.usuario)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td class="primerLetraMayuscula">
-                    @Html.DisplayFor(modelItem => item.nombre)
-                </td>
-                <td class="primerLetraMayuscula">
-                    @Html.DisplayFor(modelItem => item.apellido)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.usuario)
-                </td>
-                <td>
-                    <a asp-action="Actualizar" asp-route-id="@item.usuario_id" class="btn btn-primary">Actualizar</a>
-                    <form asp-action="Eliminar" asp-route-id="@item.usuario_id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?');">
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-

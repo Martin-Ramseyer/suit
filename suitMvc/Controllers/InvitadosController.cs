@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using suitMvc.Data;
@@ -6,6 +7,7 @@ using suitMvc.Models;
 
 namespace suitMvc.Controllers
 {
+    [Authorize]
     public class InvitadosController : Controller
     {
         private readonly SuitDbContext _context;
@@ -17,14 +19,7 @@ namespace suitMvc.Controllers
         //GET : Invitados
         public async Task<IActionResult> Index()
         {
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Obtiene la ID del usuario logeado
-
-            if (userId == null)
-            {
-                return Unauthorized(); // Si el usuario no está logeado
-            }
-            var suitDbContext = _context.Invitados.Include(i => i.Usuarios);
-            return View(await suitDbContext.ToListAsync());
+            return View(await _context.Invitados.Include(i => i.Usuarios).ToListAsync());
         }
 
         //GET : Invitados/Crear
@@ -32,7 +27,6 @@ namespace suitMvc.Controllers
         {
             return View();
         }
-
 
         //POST : Invitados/Crear
         [HttpPost]
@@ -53,15 +47,5 @@ namespace suitMvc.Controllers
 
             return RedirectToAction("Index", "Invitados");
         }
-
-        public async Task<IActionResult> ListarInvitados()
-        {
-            var invitados = await _context.Invitados
-                .Include(i => i.Usuarios) // Incluye la relación con el usuario
-                .ToListAsync();
-
-            return View(invitados);
-        }
-
     }
 }

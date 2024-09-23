@@ -22,8 +22,6 @@ namespace suitMvc.Controllers
         }
         public async Task<IActionResult> Login(LoginVM modelo)
         {
-
-
             Usuarios? usuario_encontrado = await _context.Usuarios
                 .Where(u => u.usuario == modelo.usuario && u.contrasena == modelo.contrasena)
                 .FirstOrDefaultAsync();
@@ -35,10 +33,11 @@ namespace suitMvc.Controllers
             }
 
             List<Claim> claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, usuario_encontrado.usuario),
-            new Claim(ClaimTypes.NameIdentifier, usuario_encontrado.usuario_id.ToString()) // Aquí se almacena la ID del usuario
-        };
+    {
+        new Claim(ClaimTypes.Name, usuario_encontrado.usuario),
+        new Claim(ClaimTypes.NameIdentifier, usuario_encontrado.usuario_id.ToString()), // Aquí se almacena la ID del usuario
+        new Claim("admin", usuario_encontrado.admin.ToString()) // Aquí se almacena si el usuario es admin
+    };
 
             ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             AuthenticationProperties properties = new AuthenticationProperties()
@@ -49,10 +48,18 @@ namespace suitMvc.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity),
                 properties
-                );
+            );
 
-            return RedirectToAction("Index", "Usuarios");
+            if (usuario_encontrado.admin == 1)
+            {
+                return RedirectToAction("Index", "Usuarios");
+            }
+            else
+            {
+                return RedirectToAction("Index", "Invitados");
+            }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Logout()
