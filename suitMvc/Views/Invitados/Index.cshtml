@@ -21,15 +21,6 @@
             <th>
                 Acompañantes
             </th>
-            <th>
-                Free
-            </th>
-            <th>
-                Consumiciones
-            </th>
-            <th>
-                Publica
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -45,16 +36,6 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.acompanantes)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.entrada_free)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.consumiciones)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Usuarios.nombre)
-                    @Html.DisplayFor(modelItem => item.Usuarios.apellido)
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.invitado_id">Editar</a> |

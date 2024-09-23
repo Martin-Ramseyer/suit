@@ -19,28 +19,31 @@ namespace suitMvc.Controllers
         //GET : Invitados
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Invitados.Include(i => i.Usuarios).ToListAsync());
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var invitados = await _context.Invitados
+                .Where(i => i.usuario_id == int.Parse(userId))
+                .ToListAsync();
+
+            return View(invitados);
         }
 
-        //GET : Invitados/Crear
         public IActionResult Crear()
         {
             return View();
         }
 
-        //POST : Invitados/Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(Invitados modelo)
         {
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Obtiene la ID del usuario logeado
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId == null)
             {
-                return Unauthorized(); // Si el usuario no está logeado
+                return Unauthorized();
             }
 
-            modelo.usuario_id = int.Parse(userId); // Asocia la ID del usuario que lo creó
+            modelo.usuario_id = int.Parse(userId);
 
             _context.Invitados.Add(modelo);
             await _context.SaveChangesAsync();
