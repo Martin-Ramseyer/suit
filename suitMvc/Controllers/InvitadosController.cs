@@ -50,5 +50,57 @@ namespace suitMvc.Controllers
 
             return RedirectToAction("Index", "Invitados");
         }
+        public async Task<IActionResult> Actualizar(int id)
+        {
+            var invitado = await _context.Invitados.FindAsync(id);
+
+            if (invitado == null)
+            {
+                return NotFound();
+            }
+
+            return View(invitado);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var invitado = await _context.Invitados.FindAsync(id);
+            if (invitado != null)
+            {
+                _context.Invitados.Remove(invitado);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> ListarInvitados()
+        {
+            var invitados = await _context.Invitados
+            .Include(i => i.Usuarios)
+            .ToListAsync();
+
+            return View(invitados);
+        }
+
+        [HttpPost]
+        public IActionResult EliminarSeleccionados(int[] selectedIds)
+        {
+            if (selectedIds != null && selectedIds.Length > 0)
+            {
+                foreach (var id in selectedIds)
+                {
+                    var invitado = _context.Invitados.Find(id);
+                    if (invitado != null)
+                    {
+                        _context.Invitados.Remove(invitado);
+                    }
+                }
+                _context.SaveChanges();
+            }
+            return RedirectToAction(nameof(ListarInvitados));
+        }
+
     }
 }
