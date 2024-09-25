@@ -4,60 +4,70 @@
     ViewData["Title"] = "Actualizar";
 }
 
-<h1>Actualizar</h1>
+<h1 class="text-center my-4">Actualizar Invitado</h1>
 
-<h4>Invitados</h4>
+<h4 class="text-center">Editar información del invitado</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-sm-12">
         @if (User.Identity.IsAuthenticated)
         {
             var isAdmin = User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1";
 
-
             <form asp-action="Actualizar">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="nombre" class="control-label">Nombre</label>
+
+                <!-- Nombre -->
+                <div class="form-group mb-3">
+                    <label asp-for="nombre" class="form-label">Nombre</label>
                     <input asp-for="nombre" class="form-control" />
                     <span asp-validation-for="nombre" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="apellido" class="control-label">Apellido</label>
+
+                <!-- Apellido -->
+                <div class="form-group mb-3">
+                    <label asp-for="apellido" class="form-label">Apellido</label>
                     <input asp-for="apellido" class="form-control" />
                     <span asp-validation-for="apellido" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="acompanantes" class="control-label">Acompañantes</label>
+
+                <!-- Acompañantes -->
+                <div class="form-group mb-3">
+                    <label asp-for="acompanantes" class="form-label">Acompañantes</label>
                     <input asp-for="acompanantes" class="form-control" />
                     <span asp-validation-for="acompanantes" class="text-danger"></span>
                 </div>
+
                 @if (isAdmin)
                 {
-                    <div class="form-group">
-                        <label asp-for="entrada_free" class="control-label">Free</label>
+                    <!-- Entrada Free -->
+                    <div class="form-group mb-3">
+                        <label asp-for="entrada_free" class="form-label">Free</label>
                         <input asp-for="entrada_free" class="form-control" />
                         <span asp-validation-for="entrada_free" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="consumiciones" class="control-label">Consumiciones</label>
+
+                    <!-- Consumiciones -->
+                    <div class="form-group mb-3">
+                        <label asp-for="consumiciones" class="form-label">Consumiciones</label>
                         <input asp-for="consumiciones" class="form-control" />
                         <span asp-validation-for="consumiciones" class="text-danger"></span>
                     </div>
                 }
-                @if (isAdmin)
-                {
-                    <div>
-                        <a class="btn btn-primary" asp-action="ListarInvitados">Volver</a>
-                    </div>
-                }
-                else
-                {
-                    <div>
-						<a class="btn btn-primary" asp-action="Index">Volver</a>
-					</div>
-				
-                }
+
+                <!-- Botones de acción -->
+                <div class="d-flex justify-content-center mt-4">
+                    @if (isAdmin)
+                    {
+                        <a class="btn btn-primary me-2" asp-action="ListarInvitados">Volver</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-primary me-2" asp-action="Index">Volver</a>
+                    }
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
             </form>
         }
     </div>

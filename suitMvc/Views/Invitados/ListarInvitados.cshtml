@@ -8,60 +8,68 @@
     var isAdmin = User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1";
     if (isAdmin)
     {
-        <h1>Lista de invitados</h1>
-        <a asp-action="Index" class="btn btn-primary">Volver</a>
+        <h1 class="text-center my-4">Lista de invitados</h1>
+        <div class="d-flex justify-content-center mb-3">
+            <a asp-action="Index" class="btn btn-primary btn-sm">Volver</a>
+        </div>
 
         <!-- Campo de búsqueda -->
-        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nombre..." class="form-control mb-3" />
+        <div class="d-flex justify-content-center mb-3">
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nombre..." class="form-control w-75" />
+        </div>
 
         <form asp-action="EliminarSeleccionados" method="post" onsubmit="return confirm('¿Estás seguro de que quieres eliminar los usuarios seleccionados?');">
-            <table class="table" id="invitadosTable">
-                <thead>
-                    <tr>
-                        <th>
-                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" />
-                        </th>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Acompañantes</th>
-                        <th>Free</th>
-                        <th>Consumiciones</th>
-                        <th>Publica</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
+            <div class="table-responsive">
+                <table class="table table-hover table-striped" id="invitadosTable">
+                    <thead class="table-dark">
                         <tr>
-                            <td>
-                                <input type="checkbox" name="selectedIds" value="@item.invitado_id" />
-                            </td>
-                            <td>@Html.DisplayFor(modelItem => item.nombre)</td>
-                            <td>@Html.DisplayFor(modelItem => item.apellido)</td>
-                            <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
-                            <td>@Html.DisplayFor(modelItem => item.entrada_free)</td>
-                            <td>@Html.DisplayFor(modelItem => item.consumiciones)</td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Usuarios.nombre)
-                                @Html.DisplayFor(modelItem => item.Usuarios.apellido)
-                            </td>
-                            <td>
-                                <a class="btn btn-primary" asp-action="Actualizar" asp-route-id="@item.invitado_id">Editar</a>
-                                <form asp-action="Eliminar" asp-route-id="@item.invitado_id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?');">
-                                    <button type="submit" class="btn btn-danger">Eliminar</button>
-                                </form>
-                            </td>
+                            <th>
+                                <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" />
+                            </th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Acompañantes</th>
+                            <th>Free</th>
+                            <th>Consumiciones</th>
+                            <th>Publica</th>
+                            <th></th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-            <button type="submit" class="btn btn-danger">Eliminar seleccionados</button>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="selectedIds" value="@item.invitado_id" />
+                                </td>
+                                <td>@Html.DisplayFor(modelItem => item.nombre)</td>
+                                <td>@Html.DisplayFor(modelItem => item.apellido)</td>
+                                <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
+                                <td>@Html.DisplayFor(modelItem => item.entrada_free)</td>
+                                <td>@Html.DisplayFor(modelItem => item.consumiciones)</td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Usuarios.nombre)
+                                    @Html.DisplayFor(modelItem => item.Usuarios.apellido)
+                                </td>
+                                <td class="d-flex justify-content-end">
+                                    <a class="btn btn-primary btn-sm me-1" asp-action="Actualizar" asp-route-id="@item.invitado_id">Editar</a>
+                                    <form asp-action="Eliminar" asp-route-id="@item.invitado_id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <button type="submit" class="btn btn-danger btn-sm">Eliminar seleccionados</button>
+            </div>
         </form>
     }
     else
     {
-        <h1>No tienes permisos para ver esta página.</h1>
+        <h1 class="text-center my-4">No tienes permisos para ver esta página.</h1>
     }
 }
 

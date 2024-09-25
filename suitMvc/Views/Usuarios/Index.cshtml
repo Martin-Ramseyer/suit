@@ -4,59 +4,64 @@
 @{
     ViewData["Title"] = "Usuarios";
 }
+
 @if (User.Identity.IsAuthenticated)
 {
     var isAdmin = User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1";
     if (isAdmin)
     {
-        <h1>
-            Bienvenido
-            @User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault()
-        </h1>
-        <h2>Usuarios</h2>
-        <a asp-action="Crear" class="btn btn-success">Crear Nuevo Usuario</a>
+        var currentUser = User.Claims.Where(c => c.Type == ClaimTypes.Name).Select(c => c.Value).SingleOrDefault();
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="primerLetraMayuscula">
-                        @Html.DisplayNameFor(model => model.nombre)
-                    </th>
-                    <th class="primerLetraMayuscula">
-                        @Html.DisplayNameFor(model => model.apellido)
-                    </th>
-                    <th class="primerLetraMayuscula">
-                        @Html.DisplayNameFor(model => model.usuario)
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td class="primerLetraMayuscula">
-                            @Html.DisplayFor(modelItem => item.nombre)
-                        </td>
-                        <td class="primerLetraMayuscula">
-                            @Html.DisplayFor(modelItem => item.apellido)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.usuario)
-                        </td>
-                        <td>
-                            <a asp-action="Actualizar" asp-route-id="@item.usuario_id" class="btn btn-primary">Actualizar</a>
-                            <form asp-action="Eliminar" asp-route-id="@item.usuario_id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?');">
-                                <button type="submit" class="btn btn-danger">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="container my-4">
+            <!-- Bienvenida -->
+            <h1 class="text-center">
+                Bienvenido, @currentUser
+            </h1>
+            <h2 class="text-center mb-4">Lista de publicas</h2>
+
+            <!-- Botón para crear nuevo usuario -->
+            <div class="text-center mb-4">
+                <a asp-action="Crear" class="btn btn-success">Crear Nuevo Usuario</a>
+            </div>
+
+            <!-- Tabla de usuarios -->
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Usuario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Where(u => u.usuario != currentUser))
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.nombre)</td>
+                                <td>@Html.DisplayFor(modelItem => item.apellido)</td>
+                                <td>@Html.DisplayFor(modelItem => item.usuario)</td>
+                                <td>
+                                    <!-- Botón Actualizar -->
+                                    <a asp-action="Actualizar" asp-route-id="@item.usuario_id" class="btn btn-primary btn-sm me-2">Actualizar</a>
+
+                                    <!-- Botón Eliminar con confirmación -->
+                                    <form asp-action="Eliminar" asp-route-id="@item.usuario_id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     }
     else
     {
-        <h1>No tienes permisos para ver esta página.</h1>
+        <div class="text-center my-5">
+            <h1 class="text-danger">No tienes permisos para ver esta página.</h1>
+        </div>
     }
 }

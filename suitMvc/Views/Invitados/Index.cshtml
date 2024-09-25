@@ -4,53 +4,44 @@
     ViewData["Title"] = "Invitados";
 }
 
-<h1>Invitados</h1>
+<h1 class="text-center my-4">Invitados</h1>
 
-<p>
-    <a asp-action="Crear" class="btn btn-primary">Nuevo Invitado</a>
+<div class="d-flex justify-content-center mb-3">
+    <a asp-action="Crear" class="btn btn-primary btn-sm me-2">Nuevo Invitado</a>
     @if (User.Identity.IsAuthenticated)
-{
-    var isAdmin = User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1";
+    {
+        var isAdmin = User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1";
         if (isAdmin)
         {
-            <a asp-action="ListarInvitados" class="btn btn-primary">Lista de invitados completa</a>
+            <a asp-action="ListarInvitados" class="btn btn-primary btn-sm">Lista de invitados completa</a>
         }
-}
-        
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Nombre
-            </th>
-            <th>
-                Apellido
-            </th>
-            <th>
-                Acompañantes
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.nombre)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.apellido)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.acompanantes)
-                </td>
-                <td>
-                    <a class="btn btn-primary" asp-action="Actualizar" asp-route-id="@item.invitado_id">Editar</a>
-                    <a class="btn btn-danger" asp-action="Eliminar" asp-route-id="@item.invitado_id">Eliminar</a>
-                </td>
+    }
+</div>
+
+<!-- Tabla de invitados -->
+<div class="table-responsive">
+    <table class="table table-hover table-striped">
+        <thead class="table-dark">
+            <tr class="text-center">
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Acompañantes</th>
+                <th>Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="text-center">
+                    <td>@Html.DisplayFor(modelItem => item.nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => item.apellido)</td>
+                    <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm me-1" asp-action="Actualizar" asp-route-id="@item.invitado_id">Editar</a>
+                        <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-route-id="@item.invitado_id">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
