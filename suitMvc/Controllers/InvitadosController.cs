@@ -61,6 +61,35 @@ namespace suitMvc.Controllers
 
             return View(invitado);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Actualizar(Invitados modelo)
+        {
+            try
+            {
+                var invitado = await _context.Invitados.FindAsync(modelo.invitado_id);
+                Console.Write(invitado);
+                if (invitado == null)
+                {
+                    return NotFound();
+                }
+
+                // Actualiza solo las propiedades permitidas
+                invitado.consumiciones = modelo.consumiciones;
+                invitado.entrada_free = modelo.entrada_free;
+
+
+                _context.Update(invitado);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+            return RedirectToAction(nameof(Index));
+
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
