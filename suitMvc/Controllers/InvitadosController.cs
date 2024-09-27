@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System.Drawing;
 using suitMvc.Data;
 using suitMvc.Models;
 
@@ -171,8 +174,9 @@ namespace suitMvc.Controllers
         public async Task<IActionResult> ListarInvitados()
         {
             var invitados = await _context.Invitados
-            .Include(i => i.Usuarios)
-            .ToListAsync();
+                .Include(i => i.Usuarios)
+                .OrderBy(i => i.Usuarios.nombre)
+                .ToListAsync();
 
             return View(invitados);
         }
@@ -195,5 +199,47 @@ namespace suitMvc.Controllers
             return RedirectToAction(nameof(ListarInvitados));
         }
 
+        public async Task<IActionResult> ExportarExcel()
+        {
+            var invitados = await _context.Invitados
+                .Include(i => i.Usuarios)
+                .OrderBy(i => i.Usuarios.nombre)
+                .ToListAsync();
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Invitados");
+                worksheet.Cells["A1"].Value = "Nombre ";
+                worksheet.Cells["B1"].Value = "Apellido";
+                worksheet.Cells["C1"].Value = "Acompañantes";
+                worksheet.Cells["D1"].Value = "Entrada Free";
+                worksheet.Cells["E1"].Value = "Consumiciones";
+                worksheet.Cells["F1"].Value = "Pública";
+                worksheet.Cells["G1"].Value = "";
+
+                for (int i = 0; i < invitados.Count; i++)
+                {
+                    var invitado = invitados[i];
+                    worksheet.Cells[i + 2, 1].Value = invitado.nombre;
+                    worksheet.Cells[i + 2, 2].Value = invitado.apellido;
+                    worksheet.Cells[i + 2, 3].Value = invitado.acompanantes;
+                    worksheet.Cells[i + 2, 4].Value = invitado.entrada_free;
+                    worksheet.Cells[i + 2, 5].Value = invitado.consumiciones;
+                    worksheet.Cells[i + 2, 6].Value = invitado.Usuarios.nombre;
+                    worksheet.Cells[i + 2, 7].Value = invitado.Usuarios.apellido;
+                }
+
+                worksheet.Cells["A1:G1"].Style.Font.Bold = true;
+                worksheet.Cells["A1:G1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells["A1:G1"].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                worksheet.Cells.AutoFitColumns();
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+                var fileName = $"Invitados_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+        }
     }
 }

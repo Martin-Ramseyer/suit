@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using suitMvc.Data;
 using suitMvc.Models;
+using System.Security.Claims;
 
 namespace suitMvc.Controllers
 {
@@ -24,8 +25,20 @@ namespace suitMvc.Controllers
         // POST: Flayer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(IFormFile file, int usuario_id)
+        public IActionResult Subir(IFormFile file, int usuario_id)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var usuario = _context.Usuarios.Find(int.Parse(userId));
+            if (usuario == null || usuario.admin == 0)
+            {
+                return Unauthorized();
+            }
+
             if (file != null)
             {
                 // Guardar la imagen en una carpeta local
