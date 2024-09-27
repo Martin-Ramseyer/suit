@@ -61,3 +61,40 @@ body {
     .instagram-story-content:hover .instagram-story-image {
         transform: scale(1.1);
     }
+
+
+    
+    .btn {
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+  }
+
+  .btn:hover {
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+  }
+
+  .table-hover tbody tr:hover {
+      background-color: #f1f1f1;
+      cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+      .table-responsive {
+          overflow-x: auto;
+      }
+      table th, table td {
+          font-size: 0.875rem;
+      }
+      .btn-sm {
+          font-size: 0.75rem;
+      }
+  }
+
+  .input-group-text {
+      background-color: transparent;
+  }
+
+  .input-group-text .bi-search {
+      font-size: 1.25rem;
+  }

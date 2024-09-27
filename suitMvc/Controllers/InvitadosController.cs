@@ -200,7 +200,25 @@ namespace suitMvc.Controllers
             return RedirectToAction(nameof(ListarInvitados));
         }
 
-        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> InvitadoPaso(int id, int paso)
+        {
+            var invitado = await _context.Invitados.FindAsync(id);
+            if (invitado == null)
+            {
+                return NotFound();
+            }
+
+            invitado.paso = (paso == 1) ? 0 : 1;
+
+            _context.Update(invitado);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ListarInvitados));
+        }
+
+
         public async Task<IActionResult> ExportarExcel()
         {
             var invitados = await _context.Invitados
@@ -218,6 +236,7 @@ namespace suitMvc.Controllers
                 worksheet.Cells["E1"].Value = "Consumiciones";
                 worksheet.Cells["F1"].Value = "Pública";
                 worksheet.Cells["G1"].Value = "";
+                worksheet.Cells["H1"].Value = "Ingreso";
 
                 for (int i = 0; i < invitados.Count; i++)
                 {
@@ -225,16 +244,30 @@ namespace suitMvc.Controllers
                     worksheet.Cells[i + 2, 1].Value = invitado.nombre;
                     worksheet.Cells[i + 2, 2].Value = invitado.apellido;
                     worksheet.Cells[i + 2, 3].Value = invitado.acompanantes;
+                    worksheet.Cells[i + 2, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     worksheet.Cells[i + 2, 4].Value = invitado.entrada_free;
+                    worksheet.Cells[i + 2, 4].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     worksheet.Cells[i + 2, 5].Value = invitado.consumiciones;
+                    worksheet.Cells[i + 2, 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     worksheet.Cells[i + 2, 6].Value = invitado.Usuarios.nombre;
                     worksheet.Cells[i + 2, 7].Value = invitado.Usuarios.apellido;
+                    if (invitado.paso == 1)
+                    {
+                        worksheet.Cells[i + 2, 8].Value = "Ingresó";
+                        worksheet.Cells[i + 2, 8].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        worksheet.Cells[i + 2, 8].Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                    }
+                    else
+                    {
+                        worksheet.Cells[i + 2, 8].Value = "No ingresó";
+                        worksheet.Cells[i + 2, 8].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        worksheet.Cells[i + 2, 8].Style.Fill.BackgroundColor.SetColor(Color.LightCoral);
+                    }
                 }
 
-                worksheet.Cells["A1:G1"].Style.Font.Bold = true;
-                worksheet.Cells["A1:G1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                worksheet.Cells["A1:G1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                worksheet.Cells["A1:G1"].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                worksheet.Cells["A1:H1"].Style.Font.Bold = true;
+                worksheet.Cells["A1:H1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells["A1:H1"].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 worksheet.Cells.AutoFitColumns();
 
                 var stream = new MemoryStream();

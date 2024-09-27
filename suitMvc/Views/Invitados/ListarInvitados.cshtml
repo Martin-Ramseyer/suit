@@ -3,72 +3,92 @@
 @{
     ViewData["Title"] = "Lista";
 }
+
 @if (User.Identity != null && User.Identity.IsAuthenticated)
 {
     var isAdmin = User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1";
     if (isAdmin)
     {
         <h1 class="text-center my-4">Lista de invitados</h1>
+
+        <!-- Botón de Volver centrado -->
         <div class="d-flex justify-content-center mb-3">
-            <a asp-action="Index" class="btn btn-primary btn-sm w-100 w-md-auto">Volver</a>
+            <a asp-action="Index" class="btn btn-primary btn-sm w-100 mb-2">Volver</a>
         </div>
+
+        <!-- Botón Descargar Excel alineado a la derecha -->
         <div class="d-flex justify-content-end mb-3">
-            <a asp-action="ExportarExcel" class="btn btn-success w-100 w-md-auto">Descargar Excel</a>
+            <a asp-action="ExportarExcel" class="btn btn-success w-100 mb-3">Descargar Excel</a>
         </div>
+
+        <!-- Campo de búsqueda con icono centrado -->
         <div class="d-flex justify-content-center mb-3">
-            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nombre..."
-                class="form-control w-100 w-md-75" />
+            <div class="input-group w-100 w-md-75">
+                <span class="input-group-text bg-transparent border-end-0">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nombre..."
+                    class="form-control border-start-0" />
+            </div>
         </div>
+
+        <!-- Tabla responsive de invitados -->
         <form asp-action="EliminarSeleccionados" method="post"
             onsubmit="return confirm('¿Estás seguro de que quieres eliminar los usuarios seleccionados?');">
             <div class="table-responsive">
                 <table class="table table-hover table-striped" id="invitadosTable">
-                    <thead class="table-dark">
+                    <thead class="table-dark text-center">
                         <tr>
-                            <th class="text-center"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" /></th>
-                            <th class="text-center">Nombre</th>
-                            <th class="text-center">Apellido</th>
-                            <th class="text-center">Acompañantes</th>
-                            <th class="text-center">Free</th>
-                            <th class="text-center">Consumiciones</th>
-                            <th class="text-center">Pulsera</th>
-                            <th class="text-center">Publica</th>
-                            <th class="text-center">Acciones</th>
-
+                            <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" /></th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Acompañantes</th>
+                            <th>Free</th>
+                            <th>Consumiciones</th>
+                            <th>Pulsera</th>
+                            <th>Publica</th>
+                            <th>Acciones</th>
+                            <th>Ingreso</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr>
-                                <td class="text-center"><input type="checkbox" name="selectedIds" value="@item.invitado_id" /></td>
-                                <td class="text-center">@Html.DisplayFor(modelItem => item.nombre)</td>
-                                <td class="text-center">@Html.DisplayFor(modelItem => item.apellido)</td>
-                                <td class="text-center">@Html.DisplayFor(modelItem => item.acompanantes)</td>
-                                <td class="text-center">@Html.DisplayFor(modelItem => item.entrada_free)</td>
-                                <td class="text-center">@Html.DisplayFor(modelItem => item.consumiciones)</td>
-                                <td class="text-center">@Html.DisplayFor(modelItem => item.pulsera)</td>
-                                <td class="text-center">@Html.DisplayFor(modelItem => item.Usuarios.nombre) @Html.DisplayFor(modelItem => item.Usuarios.apellido)</td>
-                                <td class="text-center">
+                            <tr class="text-center">
+                                <td><input type="checkbox" name="selectedIds" value="@item.invitado_id" /></td>
+                                <td>@Html.DisplayFor(modelItem => item.nombre)</td>
+                                <td>@Html.DisplayFor(modelItem => item.apellido)</td>
+                                <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
+                                <td>@Html.DisplayFor(modelItem => item.entrada_free)</td>
+                                <td>@Html.DisplayFor(modelItem => item.consumiciones)</td>
+                                <td>@Html.DisplayFor(modelItem => item.pulsera)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Usuarios.nombre) @Html.DisplayFor(modelItem => item.Usuarios.apellido)</td>
+                                <td class="d-flex justify-content-around flex-wrap">
+                                    <!-- Botones de acciones -->
+                                    <form asp-action="InvitadoPaso" asp-route-id="@item.invitado_id" asp-route-paso="@item.paso" method="post" class="me-1 mb-2">
+                                        <button type="submit" class="btn btn-primary btn-sm">@((item.paso == 1) ? "Desmarcar" : "Marcar Ingreso")</button>
+                                    </form>
                                     @if (User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1")
                                     {
-                                        <a class="btn btn-success" asp-action="Beneficios" asp-route-id="@item.invitado_id">Beneficios</a>
+                                        <a class="btn btn-success btn-sm me-1 mb-2" asp-action="Beneficios" asp-route-id="@item.invitado_id">Beneficios</a>
                                     }
-                                    <a class="btn btn-primary" asp-action="Actualizar" asp-route-id="@item.invitado_id">Editar</a>
-
-                                    <form asp-action="Eliminar" asp-route-id="@item.invitado_id" method="post" style="display:inline;"
-                                        onsubmit="return confirm('¿Estás seguro de que quieres eliminar este invitado?');">
-                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                    <a class="btn btn-warning btn-sm me-1 mb-2" asp-action="Actualizar" asp-route-id="@item.invitado_id">Editar</a>
+                                    <form asp-action="Eliminar" asp-route-id="@item.invitado_id" method="post" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este invitado?');" class="me-1 mb-2">
+                                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                     </form>
                                 </td>
-                                
+                                <td>
+                                    <input type="checkbox" disabled="disabled" @(item.paso != 0 ? "checked" : "") />
+                                </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
+
+            <!-- Botón para eliminar seleccionados centrado -->
             <div class="d-flex justify-content-center mt-3">
-                <button type="submit" class="btn btn-danger btn-sm w-100 w-md-auto">Eliminar seleccionados</button>
+                <button type="submit" class="btn btn-danger btn-sm w-100">Eliminar seleccionados</button>
             </div>
         </form>
     }
@@ -80,21 +100,28 @@
 
 <script>
     function toggleSelectAll(source) {
-        checkboxes = document.getElementsByName('selectedIds');
-        for (var i = 0; i < checkboxes.length; i++) {
+        let checkboxes = document.getElementsByName('selectedIds');
+        for (let i = 0; i < checkboxes.length; i++) {
             checkboxes[i].checked = source.checked;
         }
     }
 
+    let typingTimer;
+    const searchInput = document.getElementById('searchInput');
+
+    searchInput.addEventListener('keyup', function () {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(filterTable, 300);
+    });
+
     function filterTable() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("searchInput");
-        filter = input.value.toUpperCase();
+        var filter, table, tr, td, i, txtValue;
+        filter = searchInput.value.toUpperCase();
         table = document.getElementById("invitadosTable");
         tr = table.getElementsByTagName("tr");
 
         for (i = 1; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[1];
+            td = tr[i].getElementsByTagName("td")[1]; // Busca por nombre
             if (td) {
                 txtValue = td.textContent || td.innerText;
                 if (txtValue.toUpperCase().indexOf(filter) > -1) {
