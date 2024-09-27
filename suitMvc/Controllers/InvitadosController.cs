@@ -144,6 +144,7 @@ namespace suitMvc.Controllers
                 {
                     invitado.consumiciones = modelo.consumiciones;
                     invitado.entrada_free = modelo.entrada_free;
+                    invitado.pulsera = modelo.pulsera;
                 }
 
                 _context.Update(invitado);
@@ -199,6 +200,7 @@ namespace suitMvc.Controllers
             return RedirectToAction(nameof(ListarInvitados));
         }
 
+        
         public async Task<IActionResult> ExportarExcel()
         {
             var invitados = await _context.Invitados
@@ -230,6 +232,7 @@ namespace suitMvc.Controllers
                 }
 
                 worksheet.Cells["A1:G1"].Style.Font.Bold = true;
+                worksheet.Cells["A1:G1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 worksheet.Cells["A1:G1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 worksheet.Cells["A1:G1"].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 worksheet.Cells.AutoFitColumns();

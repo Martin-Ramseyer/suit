@@ -19,6 +19,8 @@ namespace suitMvc.Models
         public int acompanantes { get; set; }
         public int entrada_free { get; set; }
         public int consumiciones { get; set; }
+        public int pulsera { get; set; }
+        public int paso { get; set; } = 0;
 
         [ForeignKey("usuario_id")]
         public virtual required Usuarios Usuarios { get; set; }
