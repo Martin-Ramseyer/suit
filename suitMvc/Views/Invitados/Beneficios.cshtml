@@ -4,35 +4,43 @@
     ViewData["Title"] = "Beneficios";
 }
 
-<h1 class="text-center my-4">Beneficios</h1>
-<h4 class="text-center">Invitados</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Beneficios" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="invitado_id" />
+<div class="container my-4">
+    <h1 class="text-center">Beneficios</h1>
+    <h4 class="text-center">Invitados</h4>
+    <hr />
 
-            <div class="form-group">
-                <label asp-for="entrada_free" class="control-label"></label>
-                <input asp-for="entrada_free" class="form-control" />
-                <span asp-validation-for="entrada_free" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="consumiciones" class="control-label"></label>
-                <input asp-for="consumiciones" class="form-control" />
-                <span asp-validation-for="consumiciones" class="text-danger"></span>
-            </div>
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6">
+            <form asp-action="Beneficios" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="invitado_id" />
 
-            <div class="form-group">
-                <input type="submit" value="Guardar" class="btn btn-primary" />
-            </div>
-        </form>
+                <!-- Campo Entrada Free -->
+                <div class="form-group mb-3">
+                    <label asp-for="entrada_free" class="form-label">Entrada Free</label>
+                    <input asp-for="entrada_free" class="form-control" />
+                    <span asp-validation-for="entrada_free" class="text-danger"></span>
+                </div>
+
+                <!-- Campo Consumiciones -->
+                <div class="form-group mb-3">
+                    <label asp-for="consumiciones" class="form-label">Consumiciones</label>
+                    <input asp-for="consumiciones" class="form-control" />
+                    <span asp-validation-for="consumiciones" class="text-danger"></span>
+                </div>
+
+                <!-- Botón Guardar -->
+                <div class="text-center">
+                    <input type="submit" value="Guardar" class="btn btn-primary w-100" />
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Volver a la lista</a>
+    <!-- Enlace para volver -->
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+    </div>
 </div>
 
 @section Scripts {

@@ -4,40 +4,49 @@
     ViewData["Title"] = "Actualizar";
 }
 
-<h1>Actualizar</h1>
+<div class="container my-4">
+    <h1 class="text-center">Actualizar</h1>
+    <h4 class="text-center">Invitados</h4>
+    <hr />
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6">
+            <form asp-action="Actualizar" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="invitado_id" />
 
-<h4>Invitados</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Actualizar" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="invitado_id" />
-            <div class="form-group">
-                <label asp-for="nombre" class="control-label"></label>
-                <input asp-for="nombre" class="form-control" />
-                <span asp-validation-for="nombre" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="apellido" class="control-label"></label>
-                <input asp-for="apellido" class="form-control" />
-                <span asp-validation-for="apellido" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="acompanantes" class="control-label"></label>
-                <input asp-for="acompanantes" class="form-control" />
-                <span asp-validation-for="acompanantes" class="text-danger"></span>
-            </div>
+                <!-- Campo Nombre -->
+                <div class="form-group mb-3">
+                    <label asp-for="nombre" class="form-label">Nombre</label>
+                    <input asp-for="nombre" class="form-control" />
+                    <span asp-validation-for="nombre" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <!-- Campo Apellido -->
+                <div class="form-group mb-3">
+                    <label asp-for="apellido" class="form-label">Apellido</label>
+                    <input asp-for="apellido" class="form-control" />
+                    <span asp-validation-for="apellido" class="text-danger"></span>
+                </div>
+
+                <!-- Campo Acompañantes -->
+                <div class="form-group mb-3">
+                    <label asp-for="acompanantes" class="form-label">Acompañantes</label>
+                    <input asp-for="acompanantes" class="form-control" />
+                    <span asp-validation-for="acompanantes" class="text-danger"></span>
+                </div>
+
+                <!-- Botón Guardar -->
+                <div class="text-center">
+                    <input type="submit" value="Guardar" class="btn btn-primary w-100" />
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <!-- Enlace para volver -->
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+    </div>
 </div>
 
 @section Scripts {
