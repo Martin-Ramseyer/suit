@@ -28,19 +28,7 @@
                 <input asp-for="acompanantes" class="form-control" />
                 <span asp-validation-for="acompanantes" class="text-danger"></span>
             </div>
-            @if (User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1")
-            {
-                <div class="form-group">
-                    <label asp-for="entrada_free" class="control-label"></label>
-                    <input asp-for="entrada_free" class="form-control" />
-                    <span asp-validation-for="entrada_free" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="consumiciones" class="control-label"></label>
-                <input asp-for="consumiciones" class="form-control" />
-                <span asp-validation-for="consumiciones" class="text-danger"></span>
-            </div>
-            }
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -53,5 +41,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

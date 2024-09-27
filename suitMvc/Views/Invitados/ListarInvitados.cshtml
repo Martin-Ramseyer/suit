@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Lista";
 }
-@if (User.Identity.IsAuthenticated)
+@if (User.Identity != null && User.Identity.IsAuthenticated)
 {
     var isAdmin = User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1";
     if (isAdmin)
@@ -52,8 +52,14 @@
                                     @Html.DisplayFor(modelItem => item.Usuarios.apellido)
                                 </td>
                                 <td class="d-flex justify-content-end">
+                                    @if (User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1")
+                                    {
+                                        <a class="btn btn-success btn-sm me-1" asp-action="Beneficios" asp-route-id="@item.invitado_id">Beneficios</a>
+                                    }
+
                                     <a class="btn btn-primary btn-sm me-1" asp-action="Actualizar" asp-route-id="@item.invitado_id">Editar</a>
-                                    <form asp-action="Eliminar" asp-route-id="@item.invitado_id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?');">
+
+                                    <form asp-action="Eliminar" asp-route-id="@item.invitado_id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este invitado?');">
                                         <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                     </form>
                                 </td>
@@ -101,3 +107,4 @@
         }
     }
 </script>
+

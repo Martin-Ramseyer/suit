@@ -37,8 +37,16 @@
                     <td>@Html.DisplayFor(modelItem => item.apellido)</td>
                     <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
                     <td>
+                        @if (User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1")
+                        {
+                            <a class="btn btn-success btn-sm me-1" asp-action="Beneficios" asp-route-id="@item.invitado_id">Beneficios</a>
+                        }
+
                         <a class="btn btn-primary btn-sm me-1" asp-action="Actualizar" asp-route-id="@item.invitado_id">Editar</a>
-                        <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-route-id="@item.invitado_id">Eliminar</a>
+
+                        <form asp-action="Eliminar" asp-route-id="@item.invitado_id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este invitado?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
                     </td>
                 </tr>
             }

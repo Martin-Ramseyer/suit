@@ -21,7 +21,7 @@ namespace suitMvc.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var invitados = await _context.Invitados
-                .Where(i => i.usuario_id == int.Parse(userId))
+                .Where(i => userId != null && i.usuario_id == int.Parse(userId))
                 .ToListAsync();
 
             return View(invitados);
@@ -50,6 +50,7 @@ namespace suitMvc.Controllers
 
             return RedirectToAction("Index", "Invitados");
         }
+        [HttpGet]
         public async Task<IActionResult> Actualizar(int id)
         {
             var invitado = await _context.Invitados.FindAsync(id);
@@ -61,23 +62,35 @@ namespace suitMvc.Controllers
 
             return View(invitado);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Actualizar(Invitados modelo)
         {
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized();
+                }
+
+                var usuario = await _context.Usuarios.FindAsync(int.Parse(userId));
+                if (usuario == null)
+                {
+                    return Unauthorized();
+                }
+
                 var invitado = await _context.Invitados.FindAsync(modelo.invitado_id);
-                Console.Write(invitado);
                 if (invitado == null)
                 {
                     return NotFound();
                 }
 
-                // Actualiza solo las propiedades permitidas
-                invitado.consumiciones = modelo.consumiciones;
-                invitado.entrada_free = modelo.entrada_free;
-
+                // Actualiza solo las propiedades permitidas para usuarios no administradores
+                invitado.nombre = modelo.nombre;
+                invitado.apellido = modelo.apellido;
+                invitado.acompanantes = modelo.acompanantes;
 
                 _context.Update(invitado);
                 await _context.SaveChangesAsync();
@@ -87,8 +100,59 @@ namespace suitMvc.Controllers
                 throw;
             }
             return RedirectToAction(nameof(Index));
-
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Beneficios(int id)
+        {
+            var invitado = await _context.Invitados.FindAsync(id);
+            if (invitado == null)
+            {
+                return NotFound();
+            }
+            return View(invitado);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Beneficios(Invitados modelo)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized();
+                }
+
+                var usuario = await _context.Usuarios.FindAsync(int.Parse(userId));
+                if (usuario == null)
+                {
+                    return Unauthorized();
+                }
+
+                var invitado = await _context.Invitados.FindAsync(modelo.invitado_id);
+                if (invitado == null)
+                {
+                    return NotFound();
+                }
+
+                if (usuario.admin == 1)
+                {
+                    invitado.consumiciones = modelo.consumiciones;
+                    invitado.entrada_free = modelo.entrada_free;
+                }
+
+                _context.Update(invitado);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
 
 
         [HttpPost]
