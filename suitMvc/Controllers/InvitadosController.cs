@@ -182,6 +182,39 @@ namespace suitMvc.Controllers
             return View(invitados);
         }
 
+        public async Task<IActionResult> ListaData()
+        {
+            var invitados = await _context.Invitados
+                .Include(i => i.Usuarios)
+                .ToListAsync();
+
+            var cantidadInvitados = invitados.Count;
+            var cantidadIngresados = invitados.Count(i => i.paso == 1);
+            var cantidadPorUsuario = invitados.GroupBy(i => new { i.usuario_id, i.Usuarios.nombre, i.Usuarios.apellido })
+                                              .Select(g => new
+                                              {
+                                                  g.Key.usuario_id,
+                                                  g.Key.nombre,
+                                                  g.Key.apellido,
+                                                  Cantidad = g.Count(),
+                                                  Ingresados = g.Count(i => i.paso == 1),
+                                                  NoIngresados = g.Count(i => i.paso == 0)
+                                              })
+                                              .ToList();
+            var cantidadEntradasFree = invitados.Sum(i => i.entrada_free);
+            var cantidadConsumiciones = invitados.Sum(i => i.consumiciones);
+            var cantidadPulseras = invitados.Sum(i => i.pulsera);
+
+            ViewBag.CantidadInvitados = cantidadInvitados;
+            ViewBag.CantidadIngresados = cantidadIngresados;
+            ViewBag.CantidadPorUsuario = cantidadPorUsuario;
+            ViewBag.CantidadEntradasFree = cantidadEntradasFree;
+            ViewBag.CantidadConsumiciones = cantidadConsumiciones;
+            ViewBag.CantidadPulseras = cantidadPulseras;
+
+            return View();
+        }
+
         [HttpPost]
         public IActionResult EliminarSeleccionados(int[] selectedIds)
         {
@@ -226,16 +259,35 @@ namespace suitMvc.Controllers
                 .OrderBy(i => i.Usuarios.nombre)
                 .ToListAsync();
 
+            var cantidadInvitados = invitados.Count;
+            var cantidadIngresados = invitados.Count(i => i.paso == 1);
+            var cantidadPorUsuario = invitados.GroupBy(i => new { i.usuario_id, i.Usuarios.nombre, i.Usuarios.apellido })
+                                              .Select(g => new
+                                              {
+                                                  g.Key.usuario_id,
+                                                  g.Key.nombre,
+                                                  g.Key.apellido,
+                                                  Cantidad = g.Count(),
+                                                  Ingresados = g.Count(i => i.paso == 1),
+                                                  NoIngresados = g.Count(i => i.paso == 0)
+                                              })
+                                              .ToList();
+            var cantidadEntradasFree = invitados.Sum(i => i.entrada_free);
+            var cantidadConsumiciones = invitados.Sum(i => i.consumiciones);
+            var cantidadPulseras = invitados.Sum(i => i.pulsera);
+
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Invitados");
-                worksheet.Cells["A1"].Value = "Nombre ";
+
+                // Primera tabla: Lista de invitados
+                worksheet.Cells["A1"].Value = "Nombre";
                 worksheet.Cells["B1"].Value = "Apellido";
                 worksheet.Cells["C1"].Value = "Acompañantes";
                 worksheet.Cells["D1"].Value = "Entrada Free";
                 worksheet.Cells["E1"].Value = "Consumiciones";
-                worksheet.Cells["F1"].Value = "Pública";
-                worksheet.Cells["G1"].Value = "";
+                worksheet.Cells["F1"].Value = "Pulsera";
+                worksheet.Cells["G1"].Value = "Pública";
                 worksheet.Cells["H1"].Value = "Ingreso";
 
                 for (int i = 0; i < invitados.Count; i++)
@@ -244,30 +296,39 @@ namespace suitMvc.Controllers
                     worksheet.Cells[i + 2, 1].Value = invitado.nombre;
                     worksheet.Cells[i + 2, 2].Value = invitado.apellido;
                     worksheet.Cells[i + 2, 3].Value = invitado.acompanantes;
-                    worksheet.Cells[i + 2, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     worksheet.Cells[i + 2, 4].Value = invitado.entrada_free;
-                    worksheet.Cells[i + 2, 4].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     worksheet.Cells[i + 2, 5].Value = invitado.consumiciones;
-                    worksheet.Cells[i + 2, 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    worksheet.Cells[i + 2, 6].Value = invitado.Usuarios.nombre;
-                    worksheet.Cells[i + 2, 7].Value = invitado.Usuarios.apellido;
-                    if (invitado.paso == 1)
-                    {
-                        worksheet.Cells[i + 2, 8].Value = "Ingresó";
-                        worksheet.Cells[i + 2, 8].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        worksheet.Cells[i + 2, 8].Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
-                    }
-                    else
-                    {
-                        worksheet.Cells[i + 2, 8].Value = "No ingresó";
-                        worksheet.Cells[i + 2, 8].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        worksheet.Cells[i + 2, 8].Style.Fill.BackgroundColor.SetColor(Color.LightCoral);
-                    }
+                    worksheet.Cells[i + 2, 6].Value = invitado.pulsera;
+                    worksheet.Cells[i + 2, 7].Value = $"{invitado.Usuarios.nombre} {invitado.Usuarios.apellido}";
+                    worksheet.Cells[i + 2, 8].Value = invitado.paso == 1 ? "Sí" : "No";
                 }
 
                 worksheet.Cells["A1:H1"].Style.Font.Bold = true;
                 worksheet.Cells["A1:H1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 worksheet.Cells["A1:H1"].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                worksheet.Cells.AutoFitColumns();
+
+                // Segunda tabla: Lista de datos
+                int startColumn = 10; // Comienza dos columnas después de la primera tabla
+                worksheet.Cells[1, startColumn].Value = "Pública";
+                worksheet.Cells[1, startColumn + 1].Value = "Invitados";
+                worksheet.Cells[1, startColumn + 2].Value = "Ingresados";
+                worksheet.Cells[1, startColumn + 3].Value = "Total Entradas Free: " + cantidadEntradasFree;
+                worksheet.Cells[1, startColumn + 4].Value = "Total de Consumiciones: " + cantidadConsumiciones;
+                worksheet.Cells[1, startColumn + 5].Value = "Total de Pulseras: " + cantidadPulseras;
+
+                int row = 2;
+                foreach (var item in cantidadPorUsuario)
+                {
+                    worksheet.Cells[row, startColumn].Value = $"{item.nombre} {item.apellido}";
+                    worksheet.Cells[row, startColumn + 1].Value = item.Cantidad;
+                    worksheet.Cells[row, startColumn + 2].Value = item.Ingresados;
+                    row++;
+                }
+
+                worksheet.Cells[1, startColumn, 1, startColumn + 5].Style.Font.Bold = true;
+                worksheet.Cells[1, startColumn, 1, startColumn + 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[1, startColumn, 1, startColumn + 5].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 worksheet.Cells.AutoFitColumns();
 
                 var stream = new MemoryStream();

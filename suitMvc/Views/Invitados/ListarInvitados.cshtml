@@ -31,7 +31,9 @@
                     class="form-control border-start-0" />
             </div>
         </div>
-
+        <form asp-action="ListaData" method="get" class="mb-3">
+    <button type="submit" class="btn btn-info">Ver Lista de Datos</button>
+</form>
         <!-- Tabla responsive de invitados -->
         <form asp-action="EliminarSeleccionados" method="post"
             onsubmit="return confirm('¿Estás seguro de que quieres eliminar los usuarios seleccionados?');">
@@ -68,7 +70,7 @@
                                     <form asp-action="InvitadoPaso" asp-route-id="@item.invitado_id" asp-route-paso="@item.paso" method="post" class="me-1 mb-2">
                                         <button type="submit" class="btn btn-primary btn-sm">@((item.paso == 1) ? "Desmarcar" : "Marcar Ingreso")</button>
                                     </form>
-                                    @if (User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1")
+                                    @if (isAdmin)
                                     {
                                         <a class="btn btn-success btn-sm me-1 mb-2" asp-action="Beneficios" asp-route-id="@item.invitado_id">Beneficios</a>
                                     }
@@ -85,8 +87,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Botón para eliminar seleccionados centrado -->
             <div class="d-flex justify-content-center mt-3">
                 <button type="submit" class="btn btn-danger btn-sm w-100">Eliminar seleccionados</button>
             </div>

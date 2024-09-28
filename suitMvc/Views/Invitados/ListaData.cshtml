@@ -1,0 +1,51 @@
+@{
+    ViewBag.Title = "Lista de Datos";
+    var cantidadInvitados = ViewBag.CantidadInvitados;
+    var cantidadIngresados = ViewBag.CantidadIngresados;
+    var cantidadPorUsuario = ViewBag.CantidadPorUsuario;
+    var cantidadEntradasFree = ViewBag.CantidadEntradasFree;
+    var cantidadConsumiciones = ViewBag.CantidadConsumiciones;
+    var cantidadPulseras = ViewBag.CantidadPulseras;
+}
+
+<h2 class="text-center my-4">Lista de Datos</h2>
+
+<div class="d-flex justify-content-center mb-4">
+    <a asp-action="Index" class="btn btn-primary me-2">Volver</a>
+    <a asp-action="ExportarExcel" class="btn btn-success">Descargar Excel</a>
+</div>
+<div>
+    <table class="table table-striped table-hover text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Pública</th>
+                <th>Invitados</th>
+                <th>Ingresados</th>
+                <th>Total Entradas Free</th>
+                <th>Total de Consumiciones</th>
+                <th>Total de Pulseras</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <ul class="list-unstyled">
+                        @foreach (var item in cantidadPorUsuario)
+                        {
+                            <li>@item.nombre @item.apellido</li>
+                            <li> Total invitados: @item.Cantidad</li>
+                            <li>Ingresaron : @item.Ingresados</li>
+                            <li>No Ingresaron : @item.NoIngresados</li>
+                            <br />
+                        }
+                    </ul>
+                </td>
+                <td>@cantidadInvitados</td>
+                <td>@cantidadIngresados</td>
+                <td>@cantidadEntradasFree</td>
+                <td>@cantidadConsumiciones</td>
+                <td>@cantidadPulseras</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
