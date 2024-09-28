@@ -250,45 +250,76 @@ namespace suitMvc.Controllers
 
             return RedirectToAction(nameof(ListarInvitados));
         }
-
-
         public async Task<IActionResult> ExportarExcel()
         {
+            // Obtener los datos necesarios de la base de datos
             var invitados = await _context.Invitados
                 .Include(i => i.Usuarios)
                 .OrderBy(i => i.Usuarios.nombre)
+                .Select(i => new
+                {
+                    i.nombre,
+                    i.apellido,
+                    i.acompanantes,
+                    i.entrada_free,
+                    i.consumiciones,
+                    i.pulsera,
+                    i.paso,
+                    UsuarioNombre = i.Usuarios.nombre,
+                    UsuarioApellido = i.Usuarios.apellido
+                })
                 .ToListAsync();
 
-            var cantidadInvitados = invitados.Count;
-            var cantidadIngresados = invitados.Count(i => i.paso == 1);
-            var cantidadPorUsuario = invitados.GroupBy(i => new { i.usuario_id, i.Usuarios.nombre, i.Usuarios.apellido })
-                                              .Select(g => new
-                                              {
-                                                  g.Key.usuario_id,
-                                                  g.Key.nombre,
-                                                  g.Key.apellido,
-                                                  Cantidad = g.Count(),
-                                                  Ingresados = g.Count(i => i.paso == 1),
-                                                  NoIngresados = g.Count(i => i.paso == 0)
-                                              })
-                                              .ToList();
-            var cantidadEntradasFree = invitados.Sum(i => i.entrada_free);
-            var cantidadConsumiciones = invitados.Sum(i => i.consumiciones);
-            var cantidadPulseras = invitados.Sum(i => i.pulsera);
+            // Cálculos importantes
+            var totalInvitados = invitados.Count;
+            var totalIngresados = invitados.Count(i => i.paso == 1);
+            var porcentajeIngresados = (totalIngresados / (double)totalInvitados) * 100;
+            var totalEntradasFree = invitados.Sum(i => i.entrada_free);
+            var totalConsumiciones = invitados.Sum(i => i.consumiciones);
+            var totalPulseras = invitados.Sum(i => i.pulsera);
+            var porcentajeEntradaFreeUsadas = (totalEntradasFree / (double)totalInvitados) * 100;
+            var promedioConsumicionesPorInvitado = totalConsumiciones / (double)totalInvitados;
+
+            // Agrupación por usuario
+            var cantidadPorUsuario = invitados
+                .GroupBy(i => new { i.UsuarioNombre, i.UsuarioApellido })
+                .Select(g => new
+                {
+                    g.Key.UsuarioNombre,
+                    g.Key.UsuarioApellido,
+                    Cantidad = g.Count(),
+                    Ingresados = g.Count(i => i.paso == 1),
+                    NoIngresados = g.Count(i => i.paso == 0),
+                    Consumiciones = g.Sum(i => i.consumiciones),
+                    EntradasFree = g.Sum(i => i.entrada_free),
+                    Pulseras = g.Sum(i => i.pulsera)
+                })
+                .ToList();
 
             using (var package = new ExcelPackage())
             {
-                var worksheet = package.Workbook.Worksheets.Add("Invitados");
+                var worksheet = package.Workbook.Worksheets.Add("Reporte Suit");
 
-                // Primera tabla: Lista de invitados
-                worksheet.Cells["A1"].Value = "Nombre";
-                worksheet.Cells["B1"].Value = "Apellido";
-                worksheet.Cells["C1"].Value = "Acompañantes";
-                worksheet.Cells["D1"].Value = "Entrada Free";
-                worksheet.Cells["E1"].Value = "Consumiciones";
-                worksheet.Cells["F1"].Value = "Pulsera";
-                worksheet.Cells["G1"].Value = "Pública";
-                worksheet.Cells["H1"].Value = "Ingreso";
+                // Estilos generales
+                var headerStyle = worksheet.Cells["A1:H1"].Style;
+                headerStyle.Font.Bold = true;
+                headerStyle.Fill.PatternType = ExcelFillStyle.Solid;
+                headerStyle.Fill.BackgroundColor.SetColor(Color.LightGray);
+                headerStyle.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                // Estilo para los bordes
+                var allCells = worksheet.Cells[1, 1, invitados.Count + 1, 8];
+                allCells.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                allCells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                allCells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                allCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+
+                // Primera tabla: Lista detallada de invitados
+                var headers = new[] { "Nombre", "Apellido", "Acompañantes", "Entrada Free", "Consumiciones", "Pulsera", "Pública", "Ingreso" };
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[1, i + 1].Value = headers[i];
+                }
 
                 for (int i = 0; i < invitados.Count; i++)
                 {
@@ -299,44 +330,83 @@ namespace suitMvc.Controllers
                     worksheet.Cells[i + 2, 4].Value = invitado.entrada_free;
                     worksheet.Cells[i + 2, 5].Value = invitado.consumiciones;
                     worksheet.Cells[i + 2, 6].Value = invitado.pulsera;
-                    worksheet.Cells[i + 2, 7].Value = $"{invitado.Usuarios.nombre} {invitado.Usuarios.apellido}";
+                    worksheet.Cells[i + 2, 7].Value = $"{invitado.UsuarioNombre} {invitado.UsuarioApellido}";
                     worksheet.Cells[i + 2, 8].Value = invitado.paso == 1 ? "Sí" : "No";
                 }
 
-                worksheet.Cells["A1:H1"].Style.Font.Bold = true;
-                worksheet.Cells["A1:H1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                worksheet.Cells["A1:H1"].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                worksheet.Cells.AutoFitColumns();
 
-                // Segunda tabla: Lista de datos
-                int startColumn = 10; // Comienza dos columnas después de la primera tabla
-                worksheet.Cells[1, startColumn].Value = "Pública";
-                worksheet.Cells[1, startColumn + 1].Value = "Invitados";
-                worksheet.Cells[1, startColumn + 2].Value = "Ingresados";
-                worksheet.Cells[1, startColumn + 3].Value = "Total Entradas Free: " + cantidadEntradasFree;
-                worksheet.Cells[1, startColumn + 4].Value = "Total de Consumiciones: " + cantidadConsumiciones;
-                worksheet.Cells[1, startColumn + 5].Value = "Total de Pulseras: " + cantidadPulseras;
+                // Segunda tabla: Resumen de datos generales
+                int startColumn = 10;
+                worksheet.Cells[1, startColumn].Value = "Datos Generales";
+                worksheet.Cells[2, startColumn].Value = "Total de Invitados";
+                worksheet.Cells[2, startColumn + 1].Value = totalInvitados;
+                worksheet.Cells[3, startColumn].Value = "Total invitados que ingresaron";
+                worksheet.Cells[3, startColumn + 1].Value = totalIngresados;
+                worksheet.Cells[4, startColumn].Value = "Porcentaje Ingresados";
+                worksheet.Cells[4, startColumn + 1].Value = $"{porcentajeIngresados:N2}%";
+                worksheet.Cells[5, startColumn].Value = "Total Entradas Free";
+                worksheet.Cells[5, startColumn + 1].Value = totalEntradasFree;
+                worksheet.Cells[6, startColumn].Value = "Porcentaje Entradas Free Usadas";
+                worksheet.Cells[6, startColumn + 1].Value = $"{porcentajeEntradaFreeUsadas:N2}%";
+                worksheet.Cells[7, startColumn].Value = "Total Consumiciones";
+                worksheet.Cells[7, startColumn + 1].Value = totalConsumiciones;
+                worksheet.Cells[8, startColumn].Value = "Promedio Consumiciones por Invitado";
+                worksheet.Cells[8, startColumn + 1].Value = promedioConsumicionesPorInvitado;
+                worksheet.Cells[9, startColumn].Value = "Total Pulseras";
+                worksheet.Cells[9, startColumn + 1].Value = totalPulseras;
 
-                int row = 2;
+                // Aplicar estilos a la segunda tabla
+                var generalDataCells = worksheet.Cells[1, startColumn, 9, startColumn + 1];
+                generalDataCells.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                generalDataCells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                generalDataCells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                generalDataCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                generalDataCells.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                generalDataCells.Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                generalDataCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                generalDataCells.Style.Font.Bold = true;
+
+                // Tercera tabla: Datos por usuario
+                worksheet.Cells[11, startColumn].Value = "Datos de públicas";
+                worksheet.Cells[12, startColumn].Value = "Pública";
+                worksheet.Cells[12, startColumn + 1].Value = "Cantidad Invitados";
+                worksheet.Cells[12, startColumn + 2].Value = "Ingresados";
+                worksheet.Cells[12, startColumn + 3].Value = "No Ingresados";
+
+                int row = 13;
                 foreach (var item in cantidadPorUsuario)
                 {
-                    worksheet.Cells[row, startColumn].Value = $"{item.nombre} {item.apellido}";
+                    worksheet.Cells[row, startColumn].Value = $"{item.UsuarioNombre} {item.UsuarioApellido}";
                     worksheet.Cells[row, startColumn + 1].Value = item.Cantidad;
                     worksheet.Cells[row, startColumn + 2].Value = item.Ingresados;
+                    worksheet.Cells[row, startColumn + 3].Value = item.NoIngresados;
                     row++;
                 }
 
-                worksheet.Cells[1, startColumn, 1, startColumn + 5].Style.Font.Bold = true;
-                worksheet.Cells[1, startColumn, 1, startColumn + 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                worksheet.Cells[1, startColumn, 1, startColumn + 5].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                // Aplicar estilos a la tercera tabla
+                var userDataCells = worksheet.Cells[11, startColumn, row - 1, startColumn + 3];
+                userDataCells.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                userDataCells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                userDataCells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                userDataCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                userDataCells.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                userDataCells.Style.Fill.BackgroundColor.SetColor(Color.LightBlue);
+                userDataCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                userDataCells.Style.Font.Bold = true;
+
+                
                 worksheet.Cells.AutoFitColumns();
 
+                // Exportar archivo Excel
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
                 stream.Position = 0;
-                var fileName = $"Invitados_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                var fileName = $"Suit-{DateTime.Now:dd-MM-yyyy}.xlsx";
                 return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
         }
+
+
+
     }
 }

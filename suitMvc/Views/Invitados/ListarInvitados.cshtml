@@ -7,7 +7,8 @@
 @if (User.Identity != null && User.Identity.IsAuthenticated)
 {
     var isAdmin = User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1";
-    if (isAdmin)
+    var isCajero = User.Claims.Where(c => c.Type == "cajero").Select(c => c.Value).SingleOrDefault() == "1";
+    if (isAdmin || isCajero)
     {
         <h1 class="text-center my-4">Lista de invitados</h1>
 
@@ -32,65 +33,80 @@
             </div>
         </div>
         <form asp-action="ListaData" method="get" class="mb-3">
-    <button type="submit" class="btn btn-info">Ver Lista de Datos</button>
-</form>
+            <button type="submit" class="btn btn-info">Ver Lista de Datos</button>
+        </form>
         <!-- Tabla responsive de invitados -->
-        <form asp-action="EliminarSeleccionados" method="post"
-            onsubmit="return confirm('¿Estás seguro de que quieres eliminar los usuarios seleccionados?');">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped" id="invitadosTable">
-                    <thead class="table-dark text-center">
-                        <tr>
-                            <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" /></th>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Acompañantes</th>
-                            <th>Free</th>
-                            <th>Consumiciones</th>
-                            <th>Pulsera</th>
-                            <th>Publica</th>
-                            <th>Acciones</th>
-                            <th>Ingreso</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
+        <div class="table-responsive">
+            <table class="table table-hover table-striped" id="invitadosTable">
+                <thead class="table-dark text-center">
+                    <tr>
+                        @if (isAdmin)
                         {
-                            <tr class="text-center">
+                            <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" /></th>
+                        }
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Acompañantes</th>
+                        <th>Free</th>
+                        <th>Consumiciones</th>
+                        <th>Pulsera</th>
+                        <th>Publica</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="text-center">
+                            @if (isAdmin)
+                            {
                                 <td><input type="checkbox" name="selectedIds" value="@item.invitado_id" /></td>
-                                <td>@Html.DisplayFor(modelItem => item.nombre)</td>
-                                <td>@Html.DisplayFor(modelItem => item.apellido)</td>
-                                <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
-                                <td>@Html.DisplayFor(modelItem => item.entrada_free)</td>
-                                <td>@Html.DisplayFor(modelItem => item.consumiciones)</td>
-                                <td>@Html.DisplayFor(modelItem => item.pulsera)</td>
-                                <td>@Html.DisplayFor(modelItem => item.Usuarios.nombre) @Html.DisplayFor(modelItem => item.Usuarios.apellido)</td>
-                                <td class="d-flex justify-content-around flex-wrap">
-                                    <!-- Botones de acciones -->
-                                    <form asp-action="InvitadoPaso" asp-route-id="@item.invitado_id" asp-route-paso="@item.paso" method="post" class="me-1 mb-2">
-                                        <button type="submit" class="btn btn-primary btn-sm">@((item.paso == 1) ? "Desmarcar" : "Marcar Ingreso")</button>
-                                    </form>
-                                    @if (isAdmin)
-                                    {
-                                        <a class="btn btn-success btn-sm me-1 mb-2" asp-action="Beneficios" asp-route-id="@item.invitado_id">Beneficios</a>
-                                    }
-                                    <a class="btn btn-warning btn-sm me-1 mb-2" asp-action="Actualizar" asp-route-id="@item.invitado_id">Editar</a>
-                                    <form asp-action="Eliminar" asp-route-id="@item.invitado_id" method="post" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este invitado?');" class="me-1 mb-2">
+                            }
+                            <td>@Html.DisplayFor(modelItem => item.nombre)</td>
+                            <td>@Html.DisplayFor(modelItem => item.apellido)</td>
+                            <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
+                            <td>@Html.DisplayFor(modelItem => item.entrada_free)</td>
+                            <td>@Html.DisplayFor(modelItem => item.consumiciones)</td>
+                            <td>@Html.DisplayFor(modelItem => item.pulsera)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Usuarios.nombre) @Html.DisplayFor(modelItem => item.Usuarios.apellido)</td>
+                            <td class="d-flex justify-content-around flex-wrap">
+                                <!-- Botones de acciones -->
+                                @if (isCajero)
+                                {
+                                <form asp-action="InvitadoPaso" asp-route-id="@item.invitado_id" asp-route-paso="@item.paso" method="post" class="me-1 mb-2">
+                                    <button type="submit" class="btn btn-sm @(item.paso == 1 ? "btn-danger" : "btn-success")">
+                                        @((item.paso == 1) ? "Desmarcar" : "Marcar Ingreso")
+                                    </button>
+                                </form>
+                                }
+
+                                @if (isAdmin)
+                                {
+                                    <a class="btn btn-success btn-sm me-1 mb-2" asp-action="Beneficios"
+                                        asp-route-id="@item.invitado_id">Beneficios</a>
+                                    <a class="btn btn-warning btn-sm me-1 mb-2" asp-action="Actualizar"
+                                        asp-route-id="@item.invitado_id">Editar</a>
+                                    <form asp-action="Eliminar" asp-route-id="@item.invitado_id" method="post"
+                                        onsubmit="return confirm('¿Estás seguro de que quieres eliminar este invitado?');"
+                                        class="me-1 mb-2">
                                         <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                     </form>
-                                </td>
-                                <td>
-                                    <input type="checkbox" disabled="disabled" @(item.paso != 0 ? "checked" : "") />
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            <div class="d-flex justify-content-center mt-3">
-                <button type="submit" class="btn btn-danger btn-sm w-100">Eliminar seleccionados</button>
-            </div>
-        </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (isAdmin)
+        {
+            <form asp-action="EliminarSeleccionados" method="post"
+                onsubmit="return confirm('¿Estás seguro de que quieres eliminar los usuarios seleccionados?');">
+                <div class="d-flex justify-content-center mt-3">
+                    <button type="submit" class="btn btn-danger btn-sm w-100">Eliminar seleccionados</button>
+                </div>
+            </form>
+        }
     }
     else
     {

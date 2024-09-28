@@ -36,7 +36,8 @@ namespace suitMvc.Controllers
             {
                 new Claim(ClaimTypes.Name, usuario_encontrado.usuario),
                 new Claim(ClaimTypes.NameIdentifier, usuario_encontrado.usuario_id.ToString()), // Aquí se almacena la ID del usuario
-                new Claim("admin", usuario_encontrado.admin.ToString()) // Aquí se almacena si el usuario es admin
+                new Claim("admin", usuario_encontrado.admin.ToString()), // Aquí se almacena si el usuario es admin
+                new Claim("cajero", usuario_encontrado.cajero.ToString()) // Aquí se almacena si el usuario es cajero
             };
 
             ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -53,6 +54,10 @@ namespace suitMvc.Controllers
             if (usuario_encontrado.admin == 1)
             {
                 return RedirectToAction("Index", "Usuarios");
+            }
+            else if(usuario_encontrado.cajero == 1)
+            {
+                return RedirectToAction("ListarInvitados", "Invitados");
             }
             else
             {

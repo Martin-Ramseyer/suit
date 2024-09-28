@@ -15,6 +15,7 @@ namespace suitMvc.Models
         [StringLength(255)]
         public string? contrasena { get; set; }
         public int admin { get; set; } = 0;
+        public int cajero { get; set; } = 0;
 
 
     }

@@ -43,7 +43,7 @@ namespace suitMvc.Migrations
 
                     b.HasIndex("usuario_id");
 
-                    b.ToTable("Flayers", (string)null);
+                    b.ToTable("Flayers");
                 });
 
             modelBuilder.Entity("suitMvc.Models.Invitados", b =>
@@ -86,7 +86,7 @@ namespace suitMvc.Migrations
 
                     b.HasIndex("usuario_id");
 
-                    b.ToTable("Invitados", (string)null);
+                    b.ToTable("Invitados");
                 });
 
             modelBuilder.Entity("suitMvc.Models.Usuarios", b =>
@@ -104,6 +104,9 @@ namespace suitMvc.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("cajero")
+                        .HasColumnType("int");
+
                     b.Property<string>("contrasena")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -118,7 +121,7 @@ namespace suitMvc.Migrations
 
                     b.HasKey("usuario_id");
 
-                    b.ToTable("Usuarios", (string)null);
+                    b.ToTable("Usuarios");
                 });
 
             modelBuilder.Entity("suitMvc.Models.Flayer", b =>
