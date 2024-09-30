@@ -1,54 +1,68 @@
 @model suitMvc.Models.Invitados
+@using System.Security.Claims
 
 @{
     ViewData["Title"] = "Beneficios";
+    var user = User.Identity as ClaimsIdentity;
+    var adminClaim = user?.FindFirst("admin");
+    var isAdmin = adminClaim != null && adminClaim.Value == "1";
+
+    if (!isAdmin)
+    {
+        <script>
+            window.location.href = '@Url.Action("Index", "Home")';
+        </script>
+    }
 }
 
-<div class="container my-4">
-    <h1 class="text-center">Beneficios</h1>
-    <h4 class="text-center">Invitados</h4>
-    <hr />
+@if (isAdmin)
+{
+    <div class="container my-4">
+        <h1 class="text-center">Beneficios</h1>
+        <h4 class="text-center">Invitados</h4>
+        <hr />
 
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-6">
-            <form asp-action="Beneficios" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                <input type="hidden" asp-for="invitado_id" />
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6">
+                <form asp-action="Beneficios" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="invitado_id" />
 
-                <!-- Campo Entrada Free -->
-                <div class="form-group mb-3">
-                    <label asp-for="entrada_free" class="form-label">Entrada Free</label>
-                    <input asp-for="entrada_free" class="form-control" />
-                    <span asp-validation-for="entrada_free" class="text-danger"></span>
-                </div>
+                    <!-- Campo Entrada Free -->
+                    <div class="form-group mb-3">
+                        <label asp-for="entrada_free" class="form-label">Entrada Free</label>
+                        <input asp-for="entrada_free" class="form-control" />
+                        <span asp-validation-for="entrada_free" class="text-danger"></span>
+                    </div>
 
-                <!-- Campo Consumiciones -->
-                <div class="form-group mb-3">
-                    <label asp-for="consumiciones" class="form-label">Consumiciones</label>
-                    <input asp-for="consumiciones" class="form-control" />
-                    <span asp-validation-for="consumiciones" class="text-danger"></span>
-                </div>
+                    <!-- Campo Consumiciones -->
+                    <div class="form-group mb-3">
+                        <label asp-for="consumiciones" class="form-label">Consumiciones</label>
+                        <input asp-for="consumiciones" class="form-control" />
+                        <span asp-validation-for="consumiciones" class="text-danger"></span>
+                    </div>
 
-                <!-- Campo Pulsera -->
-                <div class="form-group mb-3">
-                    <label asp-for="pulsera" class="form-label">Pulsera</label>
-                    <input asp-for="pulsera" class="form-control" />
-                    <span asp-validation-for="pulsera" class="text-danger"></span>
-                </div>
+                    <!-- Campo Pulsera -->
+                    <div class="form-group mb-3">
+                        <label asp-for="pulsera" class="form-label">Pulsera</label>
+                        <input asp-for="pulsera" class="form-control" />
+                        <span asp-validation-for="pulsera" class="text-danger"></span>
+                    </div>
 
-                <!-- Botón Guardar -->
-                <div class="text-center">
-                    <input type="submit" value="Guardar" class="btn btn-primary w-100" />
-                </div>
-            </form>
+                    <!-- Botón Guardar -->
+                    <div class="text-center">
+                        <input type="submit" value="Guardar" class="btn btn-primary w-100" />
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Enlace para volver -->
+        <div class="text-center mt-4">
+            <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
         </div>
     </div>
-
-    <!-- Enlace para volver -->
-    <div class="text-center mt-4">
-        <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
-    </div>
-</div>
+}
 
 @section Scripts {
     @{

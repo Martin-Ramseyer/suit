@@ -53,12 +53,19 @@ namespace suitMvc.Controllers
 
             return RedirectToAction("Index", "Invitados");
         }
+
         [HttpGet]
         public async Task<IActionResult> Actualizar(int id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
             var invitado = await _context.Invitados.FindAsync(id);
 
-            if (invitado == null)
+            if (invitado == null || invitado.usuario_id != int.Parse(userId))
             {
                 return NotFound();
             }
@@ -85,7 +92,7 @@ namespace suitMvc.Controllers
                 }
 
                 var invitado = await _context.Invitados.FindAsync(modelo.invitado_id);
-                if (invitado == null)
+                if (invitado == null || invitado.usuario_id != int.Parse(userId))
                 {
                     return NotFound();
                 }
@@ -105,17 +112,6 @@ namespace suitMvc.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Beneficios(int id)
-        {
-            var invitado = await _context.Invitados.FindAsync(id);
-            if (invitado == null)
-            {
-                return NotFound();
-            }
-            return View(invitado);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Beneficios(Invitados modelo)
@@ -129,7 +125,7 @@ namespace suitMvc.Controllers
                 }
 
                 var usuario = await _context.Usuarios.FindAsync(int.Parse(userId));
-                if (usuario == null)
+                if (usuario == null || usuario.admin != 1)
                 {
                     return Unauthorized();
                 }
@@ -140,12 +136,9 @@ namespace suitMvc.Controllers
                     return NotFound();
                 }
 
-                if (usuario.admin == 1)
-                {
-                    invitado.consumiciones = modelo.consumiciones;
-                    invitado.entrada_free = modelo.entrada_free;
-                    invitado.pulsera = modelo.pulsera;
-                }
+                invitado.consumiciones = modelo.consumiciones;
+                invitado.entrada_free = modelo.entrada_free;
+                invitado.pulsera = modelo.pulsera;
 
                 _context.Update(invitado);
                 await _context.SaveChangesAsync();
@@ -157,12 +150,45 @@ namespace suitMvc.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Beneficios(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
 
+            var usuario = await _context.Usuarios.FindAsync(int.Parse(userId));
+            if (usuario == null || usuario.admin != 1)
+            {
+                return Unauthorized();
+            }
+
+            var invitado = await _context.Invitados.FindAsync(id);
+            if (invitado == null)
+            {
+                return NotFound();
+            }
+            return View(invitado);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Eliminar(int id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var usuario = await _context.Usuarios.FindAsync(int.Parse(userId));
+            if (usuario == null || usuario.admin != 1)
+            {
+                return Unauthorized();
+            }
+
             var invitado = await _context.Invitados.FindAsync(id);
             if (invitado != null)
             {
@@ -174,6 +200,15 @@ namespace suitMvc.Controllers
 
         public async Task<IActionResult> ListarInvitados()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.Claims.Any(c => c.Type == "admin" && c.Value == "1");
+            var isCajero = User.Claims.Any(c => c.Type == "cajero" && c.Value == "1");
+
+            if (!isAdmin && !isCajero)
+            {
+                return Unauthorized();
+            }
+
             var invitados = await _context.Invitados
                 .Include(i => i.Usuarios)
                 .OrderBy(i => i.Usuarios.nombre)
@@ -184,6 +219,15 @@ namespace suitMvc.Controllers
 
         public async Task<IActionResult> ListaData()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.Claims.Any(c => c.Type == "admin" && c.Value == "1");
+            var isCajero = User.Claims.Any(c => c.Type == "cajero" && c.Value == "1");
+
+            if (!isAdmin && !isCajero)
+            {
+                return Unauthorized();
+            }
+
             var invitados = await _context.Invitados
                 .Include(i => i.Usuarios)
                 .ToListAsync();
@@ -214,29 +258,19 @@ namespace suitMvc.Controllers
 
             return View();
         }
-
-        [HttpPost]
-        public IActionResult EliminarSeleccionados(int[] selectedIds)
-        {
-            if (selectedIds != null && selectedIds.Length > 0)
-            {
-                foreach (var id in selectedIds)
-                {
-                    var invitado = _context.Invitados.Find(id);
-                    if (invitado != null)
-                    {
-                        _context.Invitados.Remove(invitado);
-                    }
-                }
-                _context.SaveChanges();
-            }
-            return RedirectToAction(nameof(ListarInvitados));
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> InvitadoPaso(int id, int paso)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.Claims.Any(c => c.Type == "admin" && c.Value == "1");
+            var isCajero = User.Claims.Any(c => c.Type == "cajero" && c.Value == "1");
+
+            if (!isAdmin && !isCajero)
+            {
+                return Unauthorized();
+            }
+
             var invitado = await _context.Invitados.FindAsync(id);
             if (invitado == null)
             {
@@ -250,8 +284,17 @@ namespace suitMvc.Controllers
 
             return RedirectToAction(nameof(ListarInvitados));
         }
+
         public async Task<IActionResult> ExportarExcel()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.Claims.Any(c => c.Type == "admin" && c.Value == "1");
+
+            if (!isAdmin)
+            {
+                return Unauthorized();
+            }
+
             // Obtener los datos necesarios de la base de datos
             var invitados = await _context.Invitados
                 .Include(i => i.Usuarios)
@@ -334,7 +377,6 @@ namespace suitMvc.Controllers
                     worksheet.Cells[i + 2, 8].Value = invitado.paso == 1 ? "Sí" : "No";
                 }
 
-
                 // Segunda tabla: Resumen de datos generales
                 int startColumn = 10;
                 worksheet.Cells[1, startColumn].Value = "Datos Generales";
@@ -394,7 +436,6 @@ namespace suitMvc.Controllers
                 userDataCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 userDataCells.Style.Font.Bold = true;
 
-                
                 worksheet.Cells.AutoFitColumns();
 
                 // Exportar archivo Excel
@@ -405,8 +446,5 @@ namespace suitMvc.Controllers
                 return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
         }
-
-
-
     }
 }

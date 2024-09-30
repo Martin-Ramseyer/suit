@@ -40,10 +40,6 @@
             <table class="table table-hover table-striped" id="invitadosTable">
                 <thead class="table-dark text-center">
                     <tr>
-                        @if (isAdmin)
-                        {
-                            <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" /></th>
-                        }
                         <th>Nombre</th>
                         <th>Apellido</th>
                         <th>Acompañantes</th>
@@ -51,33 +47,38 @@
                         <th>Consumiciones</th>
                         <th>Pulsera</th>
                         <th>Publica</th>
-                        <th>Acciones</th>
+                        @if (isAdmin)
+                        {
+                            <th>Acciones</th>
+                        }
+                        else if (isCajero)
+                        {
+                            <th>Ingreso</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr class="text-center">
-                            @if (isAdmin)
-                            {
-                                <td><input type="checkbox" name="selectedIds" value="@item.invitado_id" /></td>
-                            }
                             <td>@Html.DisplayFor(modelItem => item.nombre)</td>
                             <td>@Html.DisplayFor(modelItem => item.apellido)</td>
                             <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
                             <td>@Html.DisplayFor(modelItem => item.entrada_free)</td>
                             <td>@Html.DisplayFor(modelItem => item.consumiciones)</td>
                             <td>@Html.DisplayFor(modelItem => item.pulsera)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Usuarios.nombre) @Html.DisplayFor(modelItem => item.Usuarios.apellido)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Usuarios.nombre) @Html.DisplayFor(modelItem =>
+                    item.Usuarios.apellido)</td>
                             <td class="d-flex justify-content-around flex-wrap">
                                 <!-- Botones de acciones -->
                                 @if (isCajero)
                                 {
-                                <form asp-action="InvitadoPaso" asp-route-id="@item.invitado_id" asp-route-paso="@item.paso" method="post" class="me-1 mb-2">
-                                    <button type="submit" class="btn btn-sm @(item.paso == 1 ? "btn-danger" : "btn-success")">
-                                        @((item.paso == 1) ? "Desmarcar" : "Marcar Ingreso")
-                                    </button>
-                                </form>
+                                    <form asp-action="InvitadoPaso" asp-route-id="@item.invitado_id" asp-route-paso="@item.paso"
+                                        method="post" class="me-1 mb-2">
+                                        <button type="submit" class="btn btn-sm @(item.paso == 1 ? "btn-danger" : "btn-success")">
+                                            @((item.paso == 1) ? "Desmarcar" : "Marcar Ingreso")
+                                        </button>
+                                    </form>
                                 }
 
                                 @if (isAdmin)
@@ -98,15 +99,6 @@
                 </tbody>
             </table>
         </div>
-        @if (isAdmin)
-        {
-            <form asp-action="EliminarSeleccionados" method="post"
-                onsubmit="return confirm('¿Estás seguro de que quieres eliminar los usuarios seleccionados?');">
-                <div class="d-flex justify-content-center mt-3">
-                    <button type="submit" class="btn btn-danger btn-sm w-100">Eliminar seleccionados</button>
-                </div>
-            </form>
-        }
     }
     else
     {
@@ -115,12 +107,6 @@
 }
 
 <script>
-    function toggleSelectAll(source) {
-        let checkboxes = document.getElementsByName('selectedIds');
-        for (let i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = source.checked;
-        }
-    }
 
     let typingTimer;
     const searchInput = document.getElementById('searchInput');
