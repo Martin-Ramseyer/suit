@@ -1,9 +1,7 @@
 ﻿@model suitMvc.ViewModels.LoginVM
-
 @{
     ViewData["Title"] = "Iniciar Sesión";
 }
-
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -12,6 +10,12 @@
                     <h1 class="h3 mb-0">Iniciar Sesión</h1>
                 </div>
                 <div class="card-body">
+                    @if (ViewData["Mensaje"] != null)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @ViewData["Mensaje"]
+                        </div>
+                    }
                     <form asp-controller="Login" asp-action="Login" method="post">
                         <div class="form-group mb-3">
                             <label asp-for="usuario" class="form-label">Usuario</label>
@@ -23,25 +27,10 @@
                             <input asp-for="contrasena" class="form-control" type="password" />
                             <span asp-validation-for="contrasena" class="text-danger"></span>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-                        </div>
-                        @if (ViewData["Mensaje"] != null)
-                        {
-                            <div class="alert alert-danger mt-3" role="alert">
-								@ViewData["Mensaje"]
-							</div>
-						
-                        }
+                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

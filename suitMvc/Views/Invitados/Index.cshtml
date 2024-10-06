@@ -24,7 +24,6 @@
         <thead class="table-dark">
             <tr class="text-center">
                 <th>Nombre</th>
-                <th>Apellido</th>
                 <th>Acompañantes</th>
                 <th>Acciones</th>
             </tr>
@@ -33,8 +32,7 @@
             @foreach (var item in Model)
             {
                 <tr class="text-center">
-                    <td>@Html.DisplayFor(modelItem => item.nombre)</td>
-                    <td>@Html.DisplayFor(modelItem => item.apellido)</td>
+                    <td>@Html.DisplayFor(modelItem => item.nombre) @Html.DisplayFor(modelItem => item.apellido)</td>
                     <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
                     <td>
                         @if (User.Claims.Where(c => c.Type == "admin").Select(c => c.Value).SingleOrDefault() == "1")

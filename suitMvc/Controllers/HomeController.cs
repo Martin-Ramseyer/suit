@@ -19,10 +19,13 @@ namespace suitMvc.Controllers
         }
 
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+        _logger.LogError($"Se produjo un error. Request ID: {requestId}");
+        
+        return View(new ErrorViewModel { RequestId = requestId });
+    }
     }
 }

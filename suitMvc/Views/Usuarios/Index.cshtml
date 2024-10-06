@@ -30,7 +30,6 @@
                     <thead class="table-dark">
                         <tr>
                             <th>Nombre</th>
-                            <th>Apellido</th>
                             <th>Usuario</th>
                             <th>Acciones</th>
                         </tr>
@@ -39,8 +38,7 @@
                         @foreach (var item in Model.Where(u => u.usuario != currentUser))
                         {
                             <tr>
-                                <td>@Html.DisplayFor(modelItem => item.nombre)</td>
-                                <td>@Html.DisplayFor(modelItem => item.apellido)</td>
+                                <td>@Html.DisplayFor(modelItem => item.nombre) @Html.DisplayFor(modelItem => item.apellido)</td>
                                 <td>@Html.DisplayFor(modelItem => item.usuario)</td>
                                 <td>
                                     <!-- Botón Actualizar -->

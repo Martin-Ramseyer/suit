@@ -41,7 +41,6 @@
                 <thead class="table-dark text-center">
                     <tr>
                         <th>Nombre</th>
-                        <th>Apellido</th>
                         <th>Acompañantes</th>
                         <th>Free</th>
                         <th>Consumiciones</th>
@@ -61,8 +60,7 @@
                     @foreach (var item in Model)
                     {
                         <tr class="text-center">
-                            <td>@Html.DisplayFor(modelItem => item.nombre)</td>
-                            <td>@Html.DisplayFor(modelItem => item.apellido)</td>
+                            <td>@Html.DisplayFor(modelItem => item.nombre) @Html.DisplayFor(modelItem => item.apellido)</td>
                             <td>@Html.DisplayFor(modelItem => item.acompanantes)</td>
                             <td>@Html.DisplayFor(modelItem => item.entrada_free)</td>
                             <td>@Html.DisplayFor(modelItem => item.consumiciones)</td>

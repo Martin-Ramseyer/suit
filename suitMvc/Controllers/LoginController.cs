@@ -16,12 +16,21 @@ namespace suitMvc.Controllers
         {
             _context = context;
         }
+
         public IActionResult Index()
         {
             return View();
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginVM modelo)
         {
+            if (!ModelState.IsValid)
+            {
+                return View("Index", modelo);
+            }
+
             Usuarios? usuario_encontrado = await _context.Usuarios
                 .Where(u => u.usuario == modelo.usuario && u.contrasena == modelo.contrasena)
                 .FirstOrDefaultAsync();
@@ -29,7 +38,7 @@ namespace suitMvc.Controllers
             if (usuario_encontrado == null || usuario_encontrado.usuario == null)
             {
                 ViewData["Mensaje"] = "Usuario o contraseña incorrecta.";
-                return View();
+                return View("Index", modelo);
             }
 
             List<Claim> claims = new List<Claim>()
@@ -55,7 +64,7 @@ namespace suitMvc.Controllers
             {
                 return RedirectToAction("Index", "Usuarios");
             }
-            else if(usuario_encontrado.cajero == 1)
+            else if (usuario_encontrado.cajero == 1)
             {
                 return RedirectToAction("ListarInvitados", "Invitados");
             }
@@ -64,7 +73,6 @@ namespace suitMvc.Controllers
                 return RedirectToAction("Index", "Invitados");
             }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Logout()

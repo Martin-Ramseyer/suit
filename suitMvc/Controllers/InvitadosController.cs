@@ -173,30 +173,30 @@ namespace suitMvc.Controllers
             return View(invitado);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Eliminar(int id)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized();
-            }
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Eliminar(int id)
+{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (string.IsNullOrEmpty(userId))
+    {
+        return Unauthorized();
+    }
 
-            var usuario = await _context.Usuarios.FindAsync(int.Parse(userId));
-            if (usuario == null || usuario.admin != 1)
-            {
-                return Unauthorized();
-            }
+    var usuario = await _context.Usuarios.FindAsync(int.Parse(userId));
+    if (usuario == null)
+    {
+        return Unauthorized();
+    }
 
-            var invitado = await _context.Invitados.FindAsync(id);
-            if (invitado != null)
-            {
-                _context.Invitados.Remove(invitado);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
-        }
+    var invitado = await _context.Invitados.FindAsync(id);
+    if (invitado != null)
+    {
+        _context.Invitados.Remove(invitado);
+        await _context.SaveChangesAsync();
+    }
+    return RedirectToAction(nameof(Index));
+}
 
         public async Task<IActionResult> ListarInvitados()
         {
