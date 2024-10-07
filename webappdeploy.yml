@@ -1,0 +1,13 @@
+trigger:
+- main
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    azureSubscription: 'Azure for Students(b9417663-06f5-4de4-b82a-031b39a7fc7b)'
+    command: 'build'
+    projects: '**/*.csproj'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/suit-1.0'
